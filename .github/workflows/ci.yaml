@@ -22,7 +22,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
-          path: ./build # Adjust the path if your build directory is different
+          path: ./dist # Adjust the path if your build directory is different
 
   deploy:
     needs: build # Ensures 'deploy' runs after 'build'
@@ -32,13 +32,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
-          path: ./build
+          path: ./dist
       - name: Deploy to EC2
         env:
           EC2_HOST: 65.2.10.58
           EC2_USER: ubuntu
         run: |
           mkdir -p ~/.ssh
-          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+          echo "$secrets.PRIVATE_KEY"
+          echo "$secrets.PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           scp -o StrictHostKeyChecking=no -r ./build $EC2_USER@$EC2_HOST:/home/ubuntu
